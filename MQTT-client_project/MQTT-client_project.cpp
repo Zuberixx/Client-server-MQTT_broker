@@ -11,6 +11,7 @@ using namespace std;
 int main()
 {
 	string dataString;
+	string data; //zmienna testowa - GIT
 
 	//Wysyłanie na serwer mosquitto
 	int rc;
@@ -48,4 +49,5 @@ int main()
 
 	//dodać JSONA 
 	//test zmian GIT
+	//test zmian GIT v2
 }
