@@ -1,11 +1,16 @@
 ﻿#define CURL_STATICLIB
 #include <iostream>
 #include <ostream>
-#include <stdlib.h>
+//#include <stdlib.h>
+#include <cstdlib>
 #include <mosquitto.h>
 #include "curl/curl.h"
 #include <string>
 #include <wincrypt.h>
+#include <nlohmann/json.hpp>
+
+size_t weather_write_data(void* ptr, size_t size, size_t nmemb, void* str);
+size_t curl_callback(void* contents, size_t size, size_t nmemb, void* userp);
 
 using namespace std;
 int main()
@@ -47,7 +52,4 @@ int main()
 
 	return 1;
 
-	//dodać JSONA 
-	//test zmian GIT
-	//test zmian GIT v2
 }
