@@ -1,7 +1,6 @@
 ﻿#define CURL_STATICLIB
 #include <iostream>
 #include <ostream>
-//include <stdlib.h>
 #include <cstdlib>
 #include <mosquitto.h>
 #include "curl/curl.h"
@@ -65,7 +64,6 @@ int main()
 	{
 		cout << "Cannot perform curl." << endl;
 	}
-
 	//Wysyłanie na serwer mosquitto
 	int rc;
 	const string MQTT_SERVER = "127.0.0.1";
@@ -83,7 +81,6 @@ int main()
 	else {
 		cout << "Connected with broker!" << endl;
 	}
-
 	if (mosquitto_publish(mosq, NULL, topic.c_str(), dataString.size(), dataString.c_str(), 0, false) == MOSQ_ERR_SUCCESS) {
 		cout << "MQTT: Published correctly" << endl;
 	}
@@ -91,13 +88,10 @@ int main()
 	{
 		cout << "Error" << endl;
 	}
-
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
-
 	return 1;
 }
-
 size_t weather_write_data(void* ptr, size_t size, size_t nmemb, void* str) {
 	string* s = static_cast<string*>(str);
 	copy((char*)ptr, (char*)ptr + (size + nmemb), back_inserter(*s));
@@ -107,7 +101,6 @@ size_t curl_callback(void* contents, size_t size, size_t nmemb, void* userp) {
 	json* obj = (json*)userp;
 	size_t realsize = size * nmemb;
 	string data((char*)contents, realsize);
-
 	try {
 		json new_data = json::parse(data);
 		*obj = new_data;
@@ -117,16 +110,3 @@ size_t curl_callback(void* contents, size_t size, size_t nmemb, void* userp) {
 	}
 	return realsize;
 }
-/*
-JSON - preferowana struktura danych:
-id_stacji:
-stacja:
-data_pomiaru:
-godzina_pomiaru:
-temperatura:
-predkosc_wiatru:
-kierunek_wiatru:
-wilgotnosc_wzgledna:
-suma_opadu:
-cisnienie:
-*/
