@@ -15,6 +15,11 @@ size_t curl_callback(void* contents, size_t size, size_t nmemb, void* userp);
 using namespace std;
 int main()
 {
+	CURL* curl;
+	CURLcode res;
+	curl_global_init(CURL_GLOBAL_DEFAULT);
+	string const url = "https://danepubliczne.imgw.pl/api/data/synop/id/12205";
+	//json weather_data;
 	string dataString;
 	string data; //zmienna testowa - GIT
 
