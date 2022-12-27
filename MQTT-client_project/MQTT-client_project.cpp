@@ -70,16 +70,18 @@ int main()
 	const int MQTT_PORT = 1883;
 	mosquitto_lib_init();
 	struct mosquitto* mosq;
-	string topic = "topic";
+	string topic = "id = 12560 (Katowice)";
 	dataString = weather_data.dump();
 	mosq = mosquitto_new("Client", true, NULL);
 	rc = mosquitto_connect(mosq, MQTT_SERVER.c_str(), MQTT_PORT, 60);
 	if (rc != 0) {
 		cout << "Client couldn't connect to broker" << endl;
+		mosquitto_destroy(mosq);
 		return 1;
 	}
 	else {
 		cout << "Connected with broker!" << endl;
+		cout << "Data published: " << endl << weather_data << endl;
 	}
 	if (mosquitto_publish(mosq, NULL, topic.c_str(), dataString.size(), dataString.c_str(), 0, false) == MOSQ_ERR_SUCCESS) {
 		cout << "MQTT: Published correctly" << endl;
@@ -87,7 +89,9 @@ int main()
 	else
 	{
 		cout << "Error" << endl;
+		mosquitto_destroy(mosq);
 	}
+
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
 	return 1;
