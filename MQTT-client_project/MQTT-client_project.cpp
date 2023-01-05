@@ -42,27 +42,32 @@ int main()
 	res = curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	if (res != CURLE_OK)
 	{
-		cout << "Cannot set curl url." << endl;
+		cout << "Cannot set curl url. Error code: " << res << endl;
+		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	if (res != CURLE_OK) 
 	{
-		cout << "Cannot set curl follow location flag." << endl;
+		cout << "Cannot set curl follow location flag. Error code: " << res << endl;
+		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback); // weather_write_data); // --> string > JSON
 	if (res != CURLE_OK) 
 	{
-		cout << "Cannot set the weather write function." << endl;
+		cout << "Cannot set the weather write function. Error code: " << res << endl;
+		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &weather_data); // &dataString); // --> string > JSON
 	if (res != CURLE_OK) 
 	{
-		cout << "Cannot set the curl write data." << endl;
+		cout << "Cannot set the curl write data. Error code: " << res << endl;
+		return 1;
 	}
 	res = curl_easy_perform(curl);
 	if (res != CURLE_OK) 
 	{
-		cout << "Cannot perform curl." << endl;
+		cout << "Cannot perform curl. Error code: " << res << endl;
+		return 1;
 	}
 	//Wysyłanie na serwer mosquitto
 	int rc;
@@ -73,9 +78,14 @@ int main()
 	string topic = "id = 12560 (Katowice)";
 	dataString = weather_data.dump();
 	mosq = mosquitto_new("Client", true, NULL);
+	if (!mosq) {
+		cout << "Error: Cannot create Mosquitto client. Quitting." << endl;
+		return 1;
+	}
+
 	rc = mosquitto_connect(mosq, MQTT_SERVER.c_str(), MQTT_PORT, 60);
-	if (rc != 0) {
-		cout << "Client couldn't connect to broker" << endl;
+	if (rc != MOSQ_ERR_SUCCESS) {
+		cout << "Error: Client couldn't connect to broker. Error code: " << rc << endl;
 		mosquitto_destroy(mosq);
 		return 1;
 	}
@@ -83,18 +93,19 @@ int main()
 		cout << "Connected with broker!" << endl;
 		cout << "Data published: " << endl << weather_data << endl;
 	}
-	if (mosquitto_publish(mosq, NULL, topic.c_str(), dataString.size(), dataString.c_str(), 0, false) == MOSQ_ERR_SUCCESS) {
-		cout << "MQTT: Published correctly" << endl;
-	}
-	else
-	{
-		cout << "Error" << endl;
+
+	if (mosquitto_publish(mosq, NULL, topic.c_str(), dataString.size(), dataString.c_str(), 0, false) != MOSQ_ERR_SUCCESS) {
+		cout << "Error: Cannot publish data to MQTT broker." << endl;
 		mosquitto_destroy(mosq);
+		return 1;
+	}
+	else {
+		cout << "MQTT: Published correctly" << endl;
 	}
 
 	mosquitto_disconnect(mosq);
 	mosquitto_destroy(mosq);
-	return 1;
+	return 0;
 }
 size_t weather_write_data(void* ptr, size_t size, size_t nmemb, void* str) {
 	string* s = static_cast<string*>(str);
