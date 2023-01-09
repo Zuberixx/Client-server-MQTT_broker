@@ -37,38 +37,45 @@ int main()
 	if (!curl) 
 	{
 		cout << "Error: cannot initialize CURL." << endl;
+		curl_easy_cleanup(curl);
 		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
 	if (res != CURLE_OK)
 	{
 		cout << "Cannot set curl url. Error code: " << res << endl;
+		curl_easy_cleanup(curl);
 		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 	if (res != CURLE_OK) 
 	{
 		cout << "Cannot set curl follow location flag. Error code: " << res << endl;
+		curl_easy_cleanup(curl);
 		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, curl_callback); // weather_write_data); // --> string > JSON
 	if (res != CURLE_OK) 
 	{
 		cout << "Cannot set the weather write function. Error code: " << res << endl;
+		curl_easy_cleanup(curl);
 		return 1;
 	}
 	res = curl_easy_setopt(curl, CURLOPT_WRITEDATA, &weather_data); // &dataString); // --> string > JSON
 	if (res != CURLE_OK) 
 	{
 		cout << "Cannot set the curl write data. Error code: " << res << endl;
+		curl_easy_cleanup(curl);
 		return 1;
 	}
 	res = curl_easy_perform(curl);
 	if (res != CURLE_OK) 
 	{
 		cout << "Cannot perform curl. Error code: " << res << endl;
+		curl_easy_cleanup(curl);
 		return 1;
 	}
+	curl_easy_cleanup(curl);
 	//Wysyłanie na serwer mosquitto
 	int rc;
 	const string MQTT_SERVER = "127.0.0.1";
